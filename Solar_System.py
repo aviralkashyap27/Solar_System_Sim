@@ -3,7 +3,7 @@ import math
 pygame.init()
 
 WIDTH, HEIGHT = 800,800
-WIN = pygame.display.set_mode((HEIGHT,WIDTH))
+WIN = pygame.display.set_mode((0,0),pygame.NOFRAME)
 pygame.display.set_caption("Solar System Simulator")
 
 WHITE = (255,255,255)
@@ -23,6 +23,7 @@ class Planet:
     TIMESTEP = 3600*24
 
     def __init__(self,name,x,y,radius,color,mass):
+        self.zoom = 1
         self.name = name
         self.x = x
         self.y = y
@@ -38,7 +39,7 @@ class Planet:
         self.distance_to_sun = 0
 
     def draw(self, win):
-        x = self.x * self.SCALE + WIDTH /2
+        x = self.x * self.SCALE + WIDTH 
         y = self.y * self.SCALE + HEIGHT /2
         pygame.draw.circle(win, self.color,(x,y),self.radius)
 
@@ -46,8 +47,9 @@ class Planet:
             updated_points = []
             for point in self.orbit:
                 x, y = point
-                x = x * self.SCALE + WIDTH / 2
-                y = y * self.SCALE + HEIGHT / 2
+                x = x * self.SCALE + WIDTH 
+                y = y * self.SCALE + HEIGHT /2
+                
                 updated_points.append((x, y))
 
             pygame.draw.lines(win, self.color, False, updated_points, 2)
@@ -62,7 +64,6 @@ class Planet:
 
             Planet_text = FONT_P.render(f"{self.name}",1,WHITE)
             win.blit(Planet_text,(x-Planet_text.get_width()/6,y))
-
         
 
     def attraction(self, other):
@@ -104,6 +105,9 @@ class Planet:
         if keys[pygame.K_p]:
             self.pause_game()
 
+        if keys[pygame.K_ESCAPE]:
+            quit()
+
     def pause_game(self):
         global run 
         is_paused = True
@@ -112,11 +116,18 @@ class Planet:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         is_paused = False
+                    if event.key == pygame.K_ESCAPE:
+                        is_paused = False
+                        run = False
+
 
                 if event.type == pygame.QUIT:
                     is_paused = False
                     run = False
 
+          
+        
+                
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -155,20 +166,21 @@ def main():
     mars = Planet("Mars",-1.524 * Planet.AU,0,2.5,RED,MARS_MASS)
     mars.y_vel = MARS_VEL
 
-    jupiter = Planet("J",-5.203 * Planet.AU, 0, 1, RED, JUPITER_MASS)
+    jupiter = Planet("Jupiter",-5.203 * Planet.AU, 0, 1, RED, JUPITER_MASS)
     jupiter.y_vel = JUPITER_VEL
 
-    saturn = Planet("S",-9.537 * Planet.AU, 0, 1, YELLOW,SATURN_MASS)
+    saturn = Planet("Saturn",-9.537 * Planet.AU, 0, 1, YELLOW,SATURN_MASS)
     saturn.y_vel = SATURN_VEL
 
-    uranus = Planet("U",-19.191 * Planet.AU, 0, 1, WHITE, URANUS_MASS)
+    uranus = Planet("Uranus",-19.191 * Planet.AU, 0, 1, WHITE, URANUS_MASS)
     uranus.y_vel = URANUS_VEL
 
-    neptune = Planet("N",-30.07 * Planet.AU, 0, 1, BLUE, NEPTUNE_MASS)
+    neptune = Planet("Neptune",-30.07 * Planet.AU, 0, 1, BLUE, NEPTUNE_MASS)
     neptune.y_vel = NEPTUNE_VEL
 
     planets = [sun,earth,mercury,venus,mars,jupiter,saturn,uranus,neptune]
 
+    
     while run:
         clock.tick(60)
         WIN.fill((0,0,0))
@@ -176,6 +188,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+
         for planet in planets:
             planet.update_position(planets)
             planet.draw(WIN)
